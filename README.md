@@ -40,7 +40,7 @@ MongoDB holds media records, idempotency records and tracked posts. Files live i
 
 ```bash
 npm ci && npm run check                        # typecheck, 79 tests, build
-docker compose up -d && npm run test:integration   # real MongoDB + RustFS (S3)
+docker compose up -d && npm run test:integration   # real MongoDB + RustFS (S3); use `up -d s3` if MongoDB already runs locally
 cp .env.example .env                           # fill in; then:
 npm run http      # HTTP API on :8787
 npm run worker    # cleanup loop (run exactly one or more; they coordinate with leases)
@@ -119,11 +119,12 @@ Errors are `{ error: { code, message, retryable } }`. The one to handle carefull
   - removing the "in use before calling Buffer" step (5 tests fail);
   - retrying `createPost` on a 5xx (2 tests fail).
 - Config validation: missing values listed, a non-https public URL refused.
-- **The MongoDB repository against a real MongoDB:** all 8 contract tests pass, run on my Mac on 2026-11-18. They cover the atomic single-starter under 10 concurrent callers, lease expiry, claim/release and refs.
+- **Against real infrastructure** (my Mac, 2026-11-18, `npm run test:integration`: **17/17**):
+  - **MongoDB:** all 8 repository contract tests. They cover the atomic single-starter under 10 concurrent callers, lease expiry, claim/release and refs.
+  - **S3 (RustFS 1.0.4):** presigned PUT, then sniffing on complete. Anonymous GET returns `image/png` with an immutable cache header. Bucket listing is refused. A presigned PUT re-sent as `text/html` is rejected (the signature binds the type). Delete makes the object 404.
 - `npm audit --omit=dev`: 0 vulnerabilities. Dependencies pinned, all at least 7 days old. The full audit flags `picomatch` ≤4.0.7, a ReDoS ([GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf)), through vitest and vite. It's dev-only, it's only reached with our own test globs, and no patched version exists yet. npm's suggested "fix" is a two-major vitest downgrade, so I left it.
 
 **Not verified yet:**
-- The S3 store against a real S3 server. `docker compose up -d && npm run test:integration` runs it against RustFS: presigned PUT, the signed content type, anonymous GET, no listing, delete. (The first attempt used MinIO, which [no longer publishes community images](https://itsfoss.com/news/minio-moves-away-from-open-source/).)
 - Live Buffer:
   - the exact error shape when `post` is asked for a deleted post (I assumed a `NOT_FOUND` code or a "not found" message);
   - whether retrying a failed post in Buffer re-fetches the original URL (the reason for the 7-day grace period);
