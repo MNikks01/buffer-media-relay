@@ -1,0 +1,39 @@
+{
+  "name": "buffer-media-relay",
+  "version": "0.1.0",
+  "description": "Upload media for Buffer posts without hosting it yourself. Keeps each file reachable until Buffer publishes the post, then deletes it.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20.3"
+  },
+  "bin": {
+    "buffer-media-mcp": "dist/bin/mcp.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:integration": "RUN_INTEGRATION=1 vitest run test/contract",
+    "check": "npm run typecheck && npm test && npm run build",
+    "http": "node dist/bin/http.js",
+    "worker": "node dist/bin/worker.js",
+    "mcp": "node dist/bin/mcp.js"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1165.0",
+    "@aws-sdk/lib-storage": "3.1165.0",
+    "@aws-sdk/s3-request-presigner": "3.1165.0",
+    "@hono/node-server": "2.1.6",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "hono": "4.13.17",
+    "mongodb": "7.8.0",
+    "zod": "4.6.7"
+  }
+}

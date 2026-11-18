@@ -1,0 +1,24 @@
+# Move to .github/workflows/ci.yml
+name: ci
+on: { push: { branches: [main] }, pull_request: {} }
+permissions: { contents: read }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7.0
+        ports: ["27017:27017"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run check
+      - name: MinIO
+        run: |
+          docker run -d -p 9000:9000 -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
+            minio/minio:RELEASE.2025-04-22T22-12-26Z server /data
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:9000/minio/health/ready && break; sleep 1; done
+      - run: npm run test:integration
+      - run: npm audit --omit=dev --audit-level=high
