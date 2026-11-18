@@ -9,7 +9,7 @@ const schema = z.object({
   MONGO_DB: z.string().default('buffer_media_relay'),
   S3_BUCKET: z.string().trim().min(1, 'is required'),
   S3_REGION: z.string().default('auto'),
-  /** For R2/MinIO; omit for AWS. */
+  /** For R2/RustFS; omit for AWS. */
   S3_ENDPOINT: z.url().optional(),
   S3_FORCE_PATH_STYLE: z.enum(['true', 'false']).default('false'),
   /** Where the bucket's `m/` objects are publicly served. Buffer requires https. */

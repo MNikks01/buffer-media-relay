@@ -2,7 +2,7 @@ import type { Readable } from 'node:stream';
 
 /**
  * Where files live. The service depends on this interface only; S3 (or any
- * S3-compatible store: R2, MinIO) is one implementation, an in-memory map is
+ * S3-compatible store: R2, RustFS) is one implementation, an in-memory map is
  * another for tests.
  */
 export interface ObjectStore {

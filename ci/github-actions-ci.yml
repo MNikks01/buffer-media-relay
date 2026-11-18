@@ -9,16 +9,17 @@ jobs:
       mongo:
         image: mongo:7.0
         ports: ["27017:27017"]
+      s3:
+        image: rustfs/rustfs:1.0.4
+        ports: ["9000:9000"]
+        env: { RUSTFS_ACCESS_KEY: rustfsadmin, RUSTFS_SECRET_KEY: rustfsadmin, RUSTFS_ADDRESS: "0.0.0.0:9000", RUSTFS_VOLUMES: /data }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm run check
-      - name: MinIO
-        run: |
-          docker run -d -p 9000:9000 -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
-            minio/minio:RELEASE.2025-04-22T22-12-26Z server /data
-          for i in $(seq 1 30); do curl -sf http://127.0.0.1:9000/minio/health/ready && break; sleep 1; done
+      - name: Wait for S3
+        run: for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:9000/ && break; sleep 1; done
       - run: npm run test:integration
       - run: npm audit --omit=dev --audit-level=high
