@@ -2,7 +2,6 @@
 
 Post images and videos to Buffer from files, without hosting them yourself. The relay uploads each file, keeps it publicly reachable until Buffer has published the post, then deletes it. It has two interfaces: a small HTTP API, and an MCP tool (`buffer_upload_and_schedule`) so an agent can post from local files.
 
-**Target:** Buffer · Senior Backend Engineer, Platform & API
 **Problem:** Buffer's [API roadmap](https://developers.buffer.com/roadmap) lists these as *Exploring*:
 - "Image assets for API" (upload instead of hosting a public URL, purge after posting);
 - "Copy media to Buffer storage after post creation";
